@@ -7,38 +7,6 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	input := "=+(){},;"
-
-	tests := []struct {
-		ExpectedType    token.TokenType
-		ExpectedLiteral string
-	}{
-		{token.EQUALS, "="},
-		{token.PLUS, "+"},
-		{token.LPAREN, "("},
-		{token.RPAREN, ")"},
-		{token.LBRACKET, "{"},
-		{token.RBRACKET, "}"},
-		{token.COMMA, ","},
-		{token.SEMICOLON, ";"},
-	}
-
-	l := New(input)
-
-	for i, tt := range tests {
-		tok := l.NextToken()
-
-		if tok.Type != tt.ExpectedType {
-			t.Fatalf("test %d - tokentype wrong, expected: %s actual: %s", i, tt.ExpectedType, tok.Type)
-		}
-
-		if tok.Literal != tt.ExpectedLiteral {
-			t.Fatalf("test %d - literal wrong, expected: %s actual: %s", i, tt.ExpectedLiteral, tok.Literal)
-		}
-	}
-}
-
-func TestNextToken2(t *testing.T) {
 	input := `let five = 5;
 let ten = 10;
 
@@ -47,6 +15,14 @@ let add = fn (x, y) {
 };
 
 let result = add(five, ten);
+!-/*5;
+5 < 10 > 5;
+
+if (5 < 10) {
+	return true;
+} else {
+	return false;
+}
 `
 
 	tests := []struct {
@@ -55,19 +31,19 @@ let result = add(five, ten);
 	}{
 		{token.LET, "let"},
 		{token.IDENT, "five"},
-		{token.EQUALS, "="},
+		{token.ASSIGN, "="},
 		{token.INT, "5"},
 		{token.SEMICOLON, ";"},
 
 		{token.LET, "let"},
 		{token.IDENT, "ten"},
-		{token.EQUALS, "="},
+		{token.ASSIGN, "="},
 		{token.INT, "10"},
 		{token.SEMICOLON, ";"},
 
 		{token.LET, "let"},
 		{token.IDENT, "add"},
-		{token.EQUALS, "="},
+		{token.ASSIGN, "="},
 		{token.FUNCTION, "fn"},
 		{token.LPAREN, "("},
 		{token.IDENT, "x"},
@@ -86,7 +62,7 @@ let result = add(five, ten);
 
 		{token.LET, "let"},
 		{token.IDENT, "result"},
-		{token.EQUALS, "="},
+		{token.ASSIGN, "="},
 		{token.IDENT, "add"},
 		{token.LPAREN, "("},
 		{token.IDENT, "five"},
@@ -95,6 +71,39 @@ let result = add(five, ten);
 		{token.RPAREN, ")"},
 		{token.SEMICOLON, ";"},
 
+		{token.BANG, "!"},
+		{token.MINUS, "-"},
+		{token.SLASH, "/"},
+		{token.ASTERISK, "*"},
+		{token.INT, "5"},
+		{token.SEMICOLON, ";"},
+
+		{token.INT, "5"},
+		{token.LT, "<"},
+		{token.INT, "10"},
+		{token.GT, ">"},
+		{token.INT, "5"},
+		{token.SEMICOLON, ";"},
+
+		{token.IF, "if"},
+		{token.LPAREN, "("},
+		{token.INT, "5"},
+		{token.LT, "<"},
+		{token.INT, "10"},
+		{token.RPAREN, ")"},
+
+		{token.LBRACKET, "{"},
+		{token.RETURN, "return"},
+		{token.TRUE, "true"},
+		{token.SEMICOLON, ";"},
+		{token.RBRACKET, "}"},
+
+		{token.ELSE, "else"},
+		{token.LBRACKET, "{"},
+		{token.RETURN, "return"},
+		{token.FALSE, "false"},
+		{token.SEMICOLON, ";"},
+		{token.RBRACKET, "}"},
 		{token.EOF, ""},
 	}
 
