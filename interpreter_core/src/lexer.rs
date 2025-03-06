@@ -5,16 +5,70 @@ pub struct Lexer {
     position: usize,
     read_position: usize,
     ch: char,
+    done: bool,
+}
+
+impl Lexer {
+    pub fn new(input: &str) -> Self {
+        let mut l = Lexer {
+            input: input.chars().collect(),
+            position: 0,
+            read_position: 0,
+            ch: '\0',
+            done: false,
+        };
+        l.read_char();
+        l
+    }
+
+    fn read_char(&mut self) {
+        if self.read_position < self.input.len() {
+            self.ch = self.input[self.read_position];
+        } else {
+            self.ch = '\0';
+        }
+
+        self.position = self.read_position;
+        self.read_position += 1;
+    }
+
+    fn read_identifier(&mut self) -> &[char] {
+        let position = self.position;
+        while self.ch.is_alphabetic()  {
+            self.read_char()
+        }
+
+        &self.input[position..self.position]
+    }
+
+    fn read_number(&mut self) -> &[char] {
+        let position = self.position;
+        while self.ch.is_numeric() {
+            self.read_char()
+        }
+
+        &self.input[position..self.position]
+    }
+
+    fn skip_whitespace(&mut self) {
+        while self.ch.is_whitespace() {
+            self.read_char()
+        }
+    }
 }
 
 impl Iterator for Lexer {
-    type Item = Token<>;
+    type Item = Token;
 
     fn next(&mut self) -> Option<Self::Item> {
         self.skip_whitespace();
 
+        if self.done {
+            return None;
+        }
+
         let token = match self.ch {
-            '=' => Token{token_type: TokenType::ASSIGN, literal: [self.ch]},
+            '=' => Token{token_type: TokenType::ASSIGN, literal: self.ch.into()},
             '+' => Token{token_type: TokenType::PLUS, literal: self.ch.into()},
             '-' => Token{token_type: TokenType::MINUS, literal: self.ch.into()},
             '!' => Token{token_type: TokenType::BANG, literal: self.ch.into()},
@@ -28,14 +82,17 @@ impl Iterator for Lexer {
             '}' => Token{token_type: TokenType::RBRACKET, literal: self.ch.into()},
             ',' => Token{token_type: TokenType::COMMA, literal: self.ch.into()},
             ';' => Token{token_type: TokenType::SEMICOLON, literal: self.ch.into()},
-            0 => Token{token_type: TokenType::EOF, literal: &[]},
+            '\0' => {
+                self.done = true;
+                Token{token_type: TokenType::EOF, literal: "".into()}
+            },
             _ => {
-                if is_letter(&self.ch) {
+                if self.ch.is_alphabetic() {
                     let literal = self.read_identifier();
-                    return Some(Token {token_type: literal.into(), literal});
-                } else if is_digit(&self.ch) {
+                    return Some(Token {token_type: literal.into(), literal: literal.iter().collect()});
+                } else if self.ch.is_numeric() {
                     let literal = self.read_number();
-                    return Ok(Token {token_type: literal.into(), literal});
+                    return Some(Token {token_type: TokenType::INT, literal: literal.iter().collect()});
                 } else {
                     Token{token_type: TokenType::ILLEGAL, literal: self.ch.into()}
                 }
@@ -48,60 +105,26 @@ impl Iterator for Lexer {
     }
 }
 
-impl<'a> Lexer {
-    fn new(input: &str) -> Self {
-        let mut l = Lexer {
-            input: input.chars().map(|c| &c).collect(),
-            position: 0,
-            read_position: 0,
-            ch: 0.into(),
-        };
-        l.read_char();
-        l
-    }
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    fn read_char(&mut self) {
-        if self.read_position < self.input.len() {
-            self.ch = *self.input[self.read_position]
-        } else {
-            self.ch = 0.into()
-        }
+    #[test]
+    fn test_lexer_simple() {
+        let input = "1 + 2;";
 
-        self.position = self.read_position;
-        self.read_position += 1;
-    }
+        let lexer = Lexer::new(input);
 
-    fn read_identifier(&mut self) -> &[char] {
-        let position = self.position;
-        while is_letter(&self.ch) {
-            self.read_char()
-        }
-        return &self.input[position..self.position];
-    }
+        let expected = &[
+            Token{token_type: TokenType::INT, literal: "1".into()},
+            Token{token_type: TokenType::PLUS, literal: "+".into()},
+            Token{token_type: TokenType::INT, literal: "2".into()},
+            Token{token_type: TokenType::SEMICOLON, literal: ";".into()},
+            Token{token_type: TokenType::EOF, literal: "".into()},
+        ];
 
-    fn read_number(&mut self) -> &[&char] {
-        let position = self.position;
-        while is_digit(&self.ch) {
-            self.read_char()
-        }
-        return &self.input[position..self.position];
-    }
-
-    fn skip_whitespace(&mut self) {
-        while is_whitespace(&self.ch) {
-            self.read_char()
-        }
+        assert_eq!(lexer.collect::<Vec<Token>>(), expected);
     }
 }
 
-fn is_whitespace(c: &char) -> bool {
-    c.is_whitespace()
-}
 
-fn is_digit(c: &char) -> bool {
-    c.is_ascii_digit()
-}
-
-fn is_letter(c: &char) -> bool {
-    c.is_ascii_alphabetic() || *c == '_'
-}

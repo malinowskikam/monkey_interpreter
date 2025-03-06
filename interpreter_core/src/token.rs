@@ -1,5 +1,6 @@
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum TokenType {
+    // Control
     ILLEGAL,
     EOF,
 
@@ -14,7 +15,6 @@ pub enum TokenType {
     BANG,
     ASTERISK,
     SLASH,
-
     LT,
     GT,
 
@@ -38,23 +38,45 @@ pub enum TokenType {
     RETURN,
 }
 
-impl<'a> From<&[char]> for Token<'a> {
-    fn from(literal: &[char]) -> Self {
-        let token_type = match literal.iter().collect::<String>().as_str() {
-            "fn" => TokenType::FUNCTION,
-            "let" => TokenType::LET,
-            "true" => TokenType::TRUE,
-            "false" => TokenType::FALSE,
-            "if" => TokenType::IF,
-            "else" => TokenType::ELSE,
-            "return" => TokenType::RETURN,
+const LIT_FN: &[char] = &['f', 'n'];
+const LIT_LET: &[char] = &['l', 'e', 't'];
+const LIT_RETURN: &[char] = &['r', 'e', 't', 'u', 'r', 'n'];
+const LIT_TRUE: &[char] = &['t', 'r', 'u', 'e'];
+const LIT_FALSE: &[char] = &['f', 'a', 'l', 's', 'e'];
+const LIT_IF: &[char] = &['i', 'f'];
+const LIT_ELSE: &[char] = &['e', 'l', 's', 'e'];
+
+impl From<&[char]> for TokenType {
+    fn from(vec: &[char]) -> Self {
+        match vec {
+            LIT_FN => TokenType::FUNCTION,
+            LIT_LET => TokenType::LET,
+            LIT_RETURN => TokenType::RETURN,
+            LIT_TRUE => TokenType::TRUE,
+            LIT_FALSE => TokenType::FALSE,
+            LIT_IF => TokenType::IF,
+            LIT_ELSE => TokenType::ELSE,
             _ => TokenType::IDENT,
-        };
-        Token {token_type, literal}
+        }
     }
 }
 
-pub struct Token<'a> {
+#[derive(Debug, Clone, PartialEq)]
+pub struct Token {
     pub token_type: TokenType,
-    pub literal: &'a[char],
+    pub literal: String,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_token_type() {
+        let literals = ["abc", "fn", "let", "return", "true", "false", "if", "else"];
+
+        let expected = [TokenType::IDENT, TokenType::FUNCTION, TokenType::LET, TokenType::RETURN, TokenType::TRUE, TokenType::FALSE, TokenType::IF, TokenType::ELSE];
+
+        assert!(literals.iter().map(|s| s.chars().collect::<Vec<char>>()).zip(expected.iter()).all(|(l, e)| TokenType::from(&l[..]) == *e))
+    }
 }
