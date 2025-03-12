@@ -361,7 +361,6 @@ if (5 < 10) {
                 token_type: TokenType::SEMICOLON,
                 literal: ";".into(),
             },
-
             Token {
                 token_type: TokenType::BANG,
                 literal: "!".into(),
@@ -386,7 +385,6 @@ if (5 < 10) {
                 token_type: TokenType::SEMICOLON,
                 literal: ";".into(),
             },
-
             Token {
                 token_type: TokenType::INT,
                 literal: "5".into(),
@@ -411,7 +409,6 @@ if (5 < 10) {
                 token_type: TokenType::SEMICOLON,
                 literal: ";".into(),
             },
-
             Token {
                 token_type: TokenType::IF,
                 literal: "if".into(),
@@ -440,7 +437,6 @@ if (5 < 10) {
                 token_type: TokenType::LBRACKET,
                 literal: "{".into(),
             },
-
             Token {
                 token_type: TokenType::RETURN,
                 literal: "return".into(),
@@ -453,7 +449,6 @@ if (5 < 10) {
                 token_type: TokenType::SEMICOLON,
                 literal: ";".into(),
             },
-
             Token {
                 token_type: TokenType::RBRACKET,
                 literal: "}".into(),
@@ -466,7 +461,6 @@ if (5 < 10) {
                 token_type: TokenType::LBRACKET,
                 literal: "{".into(),
             },
-
             Token {
                 token_type: TokenType::RETURN,
                 literal: "return".into(),
@@ -479,12 +473,10 @@ if (5 < 10) {
                 token_type: TokenType::SEMICOLON,
                 literal: ";".into(),
             },
-
             Token {
                 token_type: TokenType::RBRACKET,
                 literal: "}".into(),
             },
-
             Token {
                 token_type: TokenType::EOF,
                 literal: "".into(),
@@ -493,4 +485,4 @@ if (5 < 10) {
 
         assert_eq!(lexer.collect::<Vec<Token>>(), expected);
     }
-}
+}`
