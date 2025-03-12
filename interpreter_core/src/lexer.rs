@@ -485,4 +485,4 @@ if (5 < 10) {
 
         assert_eq!(lexer.collect::<Vec<Token>>(), expected);
     }
-}`
+}
