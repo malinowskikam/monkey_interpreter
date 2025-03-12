@@ -22,7 +22,7 @@ pub enum TokenType {
     COMMA,
     SEMICOLON,
 
-    //BLOCS
+    //BLOCKS
     LPAREN,
     RPAREN,
     LBRACKET,
@@ -31,11 +31,11 @@ pub enum TokenType {
     //KEYWORDS
     FUNCTION,
     LET,
+    RETURN,
     TRUE,
     FALSE,
     IF,
     ELSE,
-    RETURN,
 }
 
 const LIT_FN: &[char] = &['f', 'n'];
@@ -75,8 +75,23 @@ mod tests {
     fn test_token_type() {
         let literals = ["abc", "fn", "let", "return", "true", "false", "if", "else"];
 
-        let expected = [TokenType::IDENT, TokenType::FUNCTION, TokenType::LET, TokenType::RETURN, TokenType::TRUE, TokenType::FALSE, TokenType::IF, TokenType::ELSE];
+        let expected = [
+            TokenType::IDENT,
+            TokenType::FUNCTION,
+            TokenType::LET,
+            TokenType::RETURN,
+            TokenType::TRUE,
+            TokenType::FALSE,
+            TokenType::IF,
+            TokenType::ELSE,
+        ];
 
-        assert!(literals.iter().map(|s| s.chars().collect::<Vec<char>>()).zip(expected.iter()).all(|(l, e)| TokenType::from(&l[..]) == *e))
+        assert!(
+            literals
+                .iter()
+                .map(|s| s.chars().collect::<Vec<char>>())
+                .zip(expected.iter())
+                .all(|(l, e)| TokenType::from(&l[..]) == *e)
+        )
     }
 }
